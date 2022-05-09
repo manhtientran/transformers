@@ -24,6 +24,7 @@ from ...models.bert.tokenization_bert import whitespace_tokenize
 from ...tokenization_utils_base import BatchEncoding, PreTrainedTokenizerBase, TruncationStrategy
 from ...utils import is_tf_available, is_torch_available, logging
 from .utils import DataProcessor
+from vncorenlp import VnCoreNLP
 
 
 # Store the tokenizers which insert 2 separators tokens
@@ -649,15 +650,20 @@ class SquadProcessor(DataProcessor):
         return self._create_examples(input_data, "dev")
 
     def _create_examples(self, input_data, set_type):
+        rdrsegmenter = VnCoreNLP("src/transformers/data/processors/word_segmentation/vncorenlp/VnCoreNLP-1.1.1.jar", annotators="wseg", max_heap_size='-Xmx500m') 
         is_training = set_type == "train"
         examples = []
         for entry in tqdm(input_data):
             title = entry["title"]
             for paragraph in entry["paragraphs"]:
-                context_text = paragraph["context"]
+                # context_text = paragraph["context"]
+                context_text = " ".join(" ".join(sentence) for sentence in rdrsegmenter.tokenize(paragraph["context"]))
+
                 for qa in paragraph["qas"]:
                     qas_id = qa["id"]
-                    question_text = qa["question"]
+                    # question_text = qa["question"]
+                    question_text = " ".join(" ".join(sentence) for sentence in rdrsegmenter.tokenize(qa["question"]))
+
                     start_position_character = None
                     answer_text = None
                     answers = []
@@ -666,9 +672,21 @@ class SquadProcessor(DataProcessor):
                     if not is_impossible:
                         if is_training:
                             answer = qa["answers"][0]
-                            answer_text = answer["text"]
-                            start_position_character = answer["answer_start"]
+
+                            # answer_text = answer["text"]
+                            answer_text = " ".join(" ".join(sentence) for sentence in rdrsegmenter.tokenize(answer["text"]))
+
+                            # start_position_character = answer["answer_start"]
+                            start_position_character = context_text.find(answer_text)
+                            
                         else:
+                            for answer in qa["answers"]:
+                                # answer_text = answer["text"]
+                                answer["text"] = " ".join(" ".join(sentence) for sentence in rdrsegmenter.tokenize(answer["text"]))
+
+                                # start_position_character = answer["answer_start"]
+                                answer["answer_start"] = context_text.find(answer["text"])
+
                             answers = qa["answers"]
 
                     example = SquadExample(
