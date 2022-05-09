@@ -650,7 +650,7 @@ class SquadProcessor(DataProcessor):
         return self._create_examples(input_data, "dev")
 
     def _create_examples(self, input_data, set_type):
-        rdrsegmenter = VnCoreNLP(os.getcwd() + "/transfomers/src/transformers/data/processors/word_segmentation/vncorenlp/VnCoreNLP-1.1.1.jar", annotators="wseg", max_heap_size='-Xmx500m') 
+        rdrsegmenter = VnCoreNLP(os.getcwd() + "/transformers/src/transformers/data/processors/word_segmentation/vncorenlp/VnCoreNLP-1.1.1.jar", annotators="wseg", max_heap_size='-Xmx500m') 
         is_training = set_type == "train"
         examples = []
         for entry in tqdm(input_data):
