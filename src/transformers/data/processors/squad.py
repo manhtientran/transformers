@@ -687,7 +687,10 @@ class SquadProcessor(DataProcessor):
                                 answer["text"] = " ".join(" ".join(sentence) for sentence in rdrsegmenter.tokenize(answer["text"]))
 
                                 # start_position_character = answer["answer_start"]
-                                answer["answer_start"] = context_text.find(answer["text"])
+                                temp_context_text = context_text.replace("_", " ")
+                                temp_answer_text = answer["text"] .replace("_", " ")
+
+                                answer["answer_start"] = temp_context_text.find(temp_answer_text)
 
                             answers = qa["answers"]
 
