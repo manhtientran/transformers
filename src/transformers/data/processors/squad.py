@@ -680,6 +680,9 @@ class SquadProcessor(DataProcessor):
                             temp_context_text = context_text.replace("_", " ")
                             temp_answer_text = answer_text.replace("_", " ")
                             start_position_character = temp_context_text.find(temp_answer_text)
+
+                            answer_text = context_text[start_position_character:start_position_character + len(answer_text)]
+
                             
                         else:
                             for answer in qa["answers"]:
@@ -691,6 +694,8 @@ class SquadProcessor(DataProcessor):
                                 temp_answer_text = answer["text"] .replace("_", " ")
 
                                 answer["answer_start"] = temp_context_text.find(temp_answer_text)
+
+                                answer["text"] = context_text[answer["answer_start"]:answer["answer_start"] + len(answer["text"])]
 
                             answers = qa["answers"]
 
